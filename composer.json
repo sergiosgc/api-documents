@@ -13,7 +13,9 @@
     ],
     "require": {
         "php": ">=7.0.0",
-        "doctrine/rst-parser": "~0.5"
+        "doctrine/rst-parser": "~0.5",
+        "league/commonmark": "~2.0",
+        "ext-ast": "*"
     },
     "autoload": {
         "psr-4": {"sergiosgc\\": "sergiosgc/"}
