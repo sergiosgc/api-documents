@@ -95,15 +95,44 @@ EOS
         } else {
             $verbDocs = '';
         }
+        $page = "";
+        if (realpath(sprintf('%s/%s%s', $restRoot, $uri, "docs.page.rst"))) {
+            $page =(new \League\CommonMark\GithubFlavoredMarkdownConverter(static::$commonMarkConfig))->convertToHtml(file_get_contents( realpath(sprintf('%s/%s%s', $restRoot, $uri, "docs.page.rst")) ));
+        }
         $result = new APIDocuments();
         $result->verbDocs = $verbDocs;
         $result->summary = $summary;
         $result->entryPoints = $entrypoints;
+        $result->page = $page;
         $result->index = "";
 
         return $result;
     }
     public function generatePage() {
+        if ($this->page) {
+            return sprintf($this->pageTemplate ?? <<<EOS
+<html>
+ <head>
+  <title>%<title></title>
+  <link href="%<css>" media="screen, projection" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+<div id="index">%<index></div>
+<div id="content">%<entrypoints> %<summary> %<verbDocs></div>
+<div id="footer">%<footer></div>
+ </body>
+</html>
+EOS, 
+            [
+                'title' => $this->title ?? __("Documentation"), 
+                'css' => $this->css ?? "/stylesheets/documentation.css",
+                'index' => $this->index ?? "",
+                'entrypoints' => "",
+                'summary' => $this->page,
+                'verbDocs' => "",
+                'footer' => $this->footer ?? ""
+            ]);
+        }
         return sprintf($this->pageTemplate ?? <<<EOS
 <html>
  <head>
