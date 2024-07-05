@@ -7,6 +7,7 @@ class APIDocuments {
     public $index = null;
     public $entryPoints = null;
     public $summary = null;
+    public $footnotes = null;
     public $verbDocs = null;
     public $footer = null;
     public $pageTemplate = null;
@@ -51,6 +52,12 @@ class APIDocuments {
             $summary =(new \League\CommonMark\GithubFlavoredMarkdownConverter(static::$commonMarkConfig))->convertToHtml(file_get_contents( realpath(sprintf('%s/%s%s', $restRoot, $uri, "docs.summary.rst")) ));
         }
         if ($summary) $summary = sprintf('<div id="summary"><h2>%s</h2>%s</div>', __('Summary'), $summary);
+
+        $footnotes = '';
+        if (realpath(sprintf('%s/%s%s', $restRoot, $uri, "docs.footnotes.rst"))) {
+            $footnotes =(new \League\CommonMark\GithubFlavoredMarkdownConverter(static::$commonMarkConfig))->convertToHtml(file_get_contents( realpath(sprintf('%s/%s%s', $restRoot, $uri, "docs.footnotes.rst")) ));
+        }
+        if ($footnotes) $footnotes = sprintf('<div id="footnotes">%s</div>', $footnotes);
 
         if (array_reduce( $verbDocs, function($acc, $verbDoc) {
             if ($acc === true) return $verbDoc['uri'];
@@ -102,6 +109,7 @@ EOS
         $result = new APIDocuments();
         $result->verbDocs = $verbDocs;
         $result->summary = $summary;
+        $result->footnotes = $footnotes;
         $result->entryPoints = $entrypoints;
         $result->page = $page;
         $result->index = "";
@@ -118,7 +126,7 @@ EOS
  </head>
  <body>
 <div id="index">%<index></div>
-<div id="content">%<entrypoints> %<summary> %<verbDocs></div>
+<div id="content">%<entrypoints> %<summary> %<verbDocs> %<footnotes></div>
 <div id="footer">%<footer></div>
  </body>
 </html>
@@ -129,6 +137,7 @@ EOS,
                 'index' => $this->index ?? "",
                 'entrypoints' => "",
                 'summary' => $this->page,
+                'footnotes' => $this->footnotes,
                 'verbDocs' => "",
                 'footer' => $this->footer ?? ""
             ]);
@@ -141,7 +150,7 @@ EOS,
  </head>
  <body>
 <div id="index">%<index></div>
-<div id="content">%<entrypoints> %<summary> %<verbDocs></div>
+<div id="content">%<entrypoints> %<summary> %<verbDocs> %<footnotes></div>
 <div id="footer">%<footer></div>
  </body>
 </html>
@@ -152,6 +161,7 @@ EOS,
             'index' => $this->index ?? "",
             'entrypoints' => $this->entryPoints ?? "",
             'summary' => $this->summary ?? "",
+            'footnotes' => $this->footnotes ?? "",
             'verbDocs' => $this->verbDocs ?? "",
             'footer' => $this->footer ?? ""
         ]);
